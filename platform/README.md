@@ -34,3 +34,7 @@ uvicorn platform.oneclick_server:app --host 0.0.0.0 --port 9000
 2. **认证**：若平台对外开放，建议在反向代理层添加 API Key 或 Token 鉴权。
 3. **反向代理**：可使用 Nginx/Traefik/Cloudflare Tunnel 为 `/audit` 提供 HTTPS 与访问控制。
 4. **Webhook / Bot**：第三方平台可直接调用 `/audit` 并将 `markdown` 字段渲染到前端或消息机器人，实现“一键体检”体验。
+
+## 安全性
+- 设置环境变量 `AUDIT_PLATFORM_TOKEN` 后，调用方需在 Header 中携带 `Authorization: Bearer <token>`。
+- 默认启用 30 秒缓存，可在请求体设置 `force_refresh` / `cache_ttl_seconds` 控制行为。

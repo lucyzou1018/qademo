@@ -255,6 +255,13 @@
 
     const formatMB = bytes => (bytes / 1_000_000).toFixed(3);
 
+    const escapeHtml = (value = '') => String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
     function renderReport(report) {
       const summary = [
         { label: '隐私泄露', score: report.privacyRisk ?? 0, desc: `敏感命中 ${report.memory?.sensitiveHits ?? 0} 次` },
@@ -268,9 +275,9 @@
         const meta = riskLevelInfo(score);
         return `
         <div class="card">
-          <h2>${label}</h2>
+          <h2>${escapeHtml(label)}</h2>
           <div class="risk-value" style="color:${riskColors(score)};">${score}</div>
-          <div class="risk-desc">${desc}</div>
+          <div class="risk-desc">${escapeHtml(desc)}</div>
           <div class="risk-meta" style="color:${meta.color};">${meta.label} · ${meta.range}</div>
         </div>`;
       }).join('');
@@ -280,10 +287,10 @@
         <tr><th>Agent / Skill</th><th>工具权限</th><th>高危</th><th>备注</th></tr>
         ${permissions.map(p => `
           <tr>
-            <td>${p.name}</td>
-            <td>${(p.tools || []).join(', ') || '-'}</td>
-            <td><span class="badge">${(p.highRiskTools || []).join(', ') || '-'}</span></td>
-            <td>${(p.notes || []).join('；') || '-'}</td>
+            <td>${escapeHtml((p && p.name) || '-')}</td>
+            <td>${escapeHtml((((p && p.tools) || []).join(', ')) || '-')}</td>
+            <td><span class="badge">${escapeHtml((((p && p.highRiskTools) || []).join(', ')) || '-')}</span></td>
+            <td>${escapeHtml((((p && p.notes) || []).join('；')) || '-')}</td>
           </tr>`).join('')}
       `;
 
@@ -292,9 +299,9 @@
         <tr><th>文件</th><th>大小</th><th>问题</th></tr>
         ${memoryFiles.length ? memoryFiles.map(row => `
           <tr>
-            <td>${row.path}</td>
-            <td>${row.size}</td>
-            <td>${(row.issues || []).join('；')}</td>
+            <td>${escapeHtml(row.path)}</td>
+            <td>${escapeHtml(row.size)}</td>
+            <td>${escapeHtml((row.issues || []).join('；'))}</td>
           </tr>`).join('') : '<tr><td colspan="3">暂无异常</td></tr>'}
       `;
 
@@ -306,14 +313,14 @@
         <tr><th>模型 / Skill</th><th>Tokens</th></tr>
         ${tokenRows.length ? tokenRows.map(row => `
           <tr>
-            <td>${row.model}</td>
+            <td>${escapeHtml(row.model)}</td>
             <td>${row.usage}</td>
           </tr>`).join('') : '<tr><td colspan="2">没有捕获到 token 数据</td></tr>'}
       `;
 
       const suggestions = report.suggestions?.length ? report.suggestions : ['暂无建议'];
       suggestionsEl.innerHTML = suggestions.map(text => `
-        <div class="suggestion">${text}</div>
+        <div class="suggestion">${escapeHtml(text)}</div>
       `).join('');
     }
 
